@@ -20,6 +20,16 @@ const donorSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
+isEligible: {
+  type: Boolean,
+  default: false,
+},
+
+eligibilityStatus: {
+  type: String,
+  default: "Not Checked",
+},
   },
   { timestamps: true }
 );

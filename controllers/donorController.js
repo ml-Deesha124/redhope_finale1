@@ -67,9 +67,128 @@ const getDonors = async (req, res) => {
     });
   }
 };
+const getDonorById = async (req, res) => {
+  try {
+    const donor = await Donor.findById(req.params.id);
 
-module.exports = {
+    if (!donor) {
+      return res.status(404).json({
+        message: "Donor not found",
+      });
+    }
+
+    res.json(donor);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+const updateDonor = async (req, res) => {
+  try {
+    const { username, email, contact } = req.body;
+
+    const donor = await Donor.findByIdAndUpdate(
+      req.params.id,
+      {
+        username,
+        email,
+        contact,
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!donor) {
+      return res.status(404).json({
+        message: "Donor not found",
+      });
+    }
+
+    res.json(donor);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+const updatePassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await Donor.findByIdAndUpdate(req.params.id, {
+      password: hashedPassword,
+    });
+
+    res.json({
+      message: "Password Updated Successfully",
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+const updateEligibility = async (req, res) => {
+  try {
+    const { isEligible, eligibilityStatus } = req.body;
+
+    const donor = await Donor.findByIdAndUpdate(
+      req.params.id,
+      {
+        isEligible,
+        eligibilityStatus,
+      },
+      {
+        new: true,
+      }
+    );
+
+    res.json(donor);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+const forgotPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const donor = await Donor.findOne({
+      email,
+    });
+
+    if (!donor) {
+      return res.status(404).json({
+        message: "Invalid User",
+      });
+    }
+
+    donor.password = await bcrypt.hash(password, 10);
+
+    await donor.save();
+
+    res.json({
+      message: "Password Updated Successfully",
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
+  module.exports = {
   registerDonor,
   loginDonor,
   getDonors,
+  getDonorById,
+  updateDonor,
+  updatePassword,
+  updateEligibility,
+  forgotPassword,
 };
